@@ -1,6 +1,6 @@
 ---
 plan: morning-digest
-status: ready
+status: done
 owner: rook
 opened: 2026-10-29
 ---
@@ -91,6 +91,6 @@ Done when: the preview link no longer shows the lane marker.
 
 ## Review state
 
-Awaiting course review. The plan was archived and its marker removed before the
-reviewer received the marked preview. Issue #8 is reopened; keep this plan here
-until review is in and the marker-free page has replaced the marked preview.
+The course reviewer confirmed that the marked preview was seen. After renewed
+human approval, the marker-free page replaced it at the same public URL. The
+public banner now reads "no marker set" and no longer contains the lane marker.
