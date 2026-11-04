@@ -88,3 +88,9 @@ Done when: the preview link no longer shows the lane marker.
 - [#6 Add digest route tests](https://github.com/beastieskate/s01e04-before-i-looked/issues/6)
 - [#7 Publish the marked HTML preview](https://github.com/beastieskate/s01e04-before-i-looked/issues/7)
 - [#8 Remove the marker and finish the plan](https://github.com/beastieskate/s01e04-before-i-looked/issues/8)
+
+## Review state
+
+Awaiting course review. The plan was archived and its marker removed before the
+reviewer received the marked preview. Issue #8 is reopened; keep this plan here
+until review is in and the marker-free page has replaced the marked preview.
