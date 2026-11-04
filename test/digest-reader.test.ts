@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { readNight } from '../src/digest/reader.js';
+import { readNight, readNightCounts } from '../src/digest/reader.js';
 
 const temporaryDirectories: string[] = [];
 
@@ -11,6 +11,36 @@ afterEach(async () => {
 });
 
 describe('readNight', () => {
+  it('counts the bad line in the real fixture', () => {
+    expect(readNight('runs', '2026-10-28')).toHaveLength(5);
+    expect(readNightCounts('runs', '2026-10-28').badLines).toBe(1);
+  });
+
+  it('counts malformed and invalid lines but not blank lines', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'rig-digest-'));
+    temporaryDirectories.push(directory);
+    await writeFile(
+      join(directory, 'night.jsonl'),
+      '\n  \nnot json\n{}\nnull\n' +
+      '{"at":"2026-10-29T00:00:00+01:00","job":"job/a","status":"ok","owner":null}\n',
+    );
+
+    expect(readNightCounts(directory, 'night')).toEqual({
+      ok: 1, retry: 0, fail: 0, badLines: 3,
+    });
+    expect(readNight(directory, 'night')).toHaveLength(1);
+  });
+
+  it('reports zero counts for an empty night', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'rig-digest-'));
+    temporaryDirectories.push(directory);
+    await writeFile(join(directory, 'night.jsonl'), '');
+
+    expect(readNightCounts(directory, 'night')).toEqual({
+      ok: 0, retry: 0, fail: 0, badLines: 0,
+    });
+  });
+
   it('groups runs into one row per job', () => {
     expect(readNight('runs', '2026-10-28')).toEqual([
       {

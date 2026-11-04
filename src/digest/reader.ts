@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DigestRow, DigestStatus } from './types.js';
 
-export type DigestCounts = Record<DigestStatus, number>;
+export type DigestCounts = Record<DigestStatus, number> & { badLines: number };
 
 type Run = {
   at: string;
@@ -27,7 +27,7 @@ function isRun(value: unknown): value is Run {
 }
 
 function emptyCounts(): DigestCounts {
-  return { ok: 0, retry: 0, fail: 0 };
+  return { ok: 0, retry: 0, fail: 0, badLines: 0 };
 }
 
 function readRuns(runsDir: string, night: string): { runs: Run[]; counts: DigestCounts } {
@@ -42,9 +42,13 @@ function readRuns(runsDir: string, night: string): { runs: Run[]; counts: Digest
     try {
       value = JSON.parse(line);
     } catch {
+      counts.badLines += 1;
       continue;
     }
-    if (!isRun(value)) continue;
+    if (!isRun(value)) {
+      counts.badLines += 1;
+      continue;
+    }
     runs.push(value);
     counts[value.status] += 1;
   }

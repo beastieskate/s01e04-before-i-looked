@@ -33,7 +33,7 @@ export function readStatus(config: RigConfig): Status {
     try {
       return { night, counts: readNightCounts(config.runsDir, night) };
     } catch {
-      return { night, counts: { ok: 0, retry: 0, fail: 0 } };
+      return { night, counts: { ok: 0, retry: 0, fail: 0, badLines: 0 } };
     }
   });
 
