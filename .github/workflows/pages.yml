@@ -1,0 +1,55 @@
+name: Deploy digest preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      marker:
+        description: Marker shown in the preview banner; leave empty for cleanup
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.16.1
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Render preview
+        env:
+          LANE_MARKER: ${{ inputs.marker }}
+          PORT: 8787
+        run: |
+          pnpm start > /tmp/rig.log 2>&1 &
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl --fail --silent http://127.0.0.1:8787/health >/dev/null; then break; fi
+            sleep 1
+          done
+          mkdir -p preview
+          curl --fail --silent http://127.0.0.1:8787/digest/2026-10-28 -o preview/index.html
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
