@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DigestRow, DigestStatus } from './types.js';
 
+export type DigestCounts = Record<DigestStatus, number>;
+
 type Run = {
   at: string;
   job: string;
@@ -24,9 +26,14 @@ function isRun(value: unknown): value is Run {
   );
 }
 
-export function readNight(runsDir: string, night: string): DigestRow[] {
+function emptyCounts(): DigestCounts {
+  return { ok: 0, retry: 0, fail: 0 };
+}
+
+function readRuns(runsDir: string, night: string): { runs: Run[]; counts: DigestCounts } {
   const contents = readFileSync(join(runsDir, `${night}.jsonl`), 'utf8');
-  const rows = new Map<string, DigestRow>();
+  const runs: Run[] = [];
+  const counts = emptyCounts();
 
   for (const line of contents.split('\n')) {
     if (line.trim() === '') continue;
@@ -38,8 +45,18 @@ export function readNight(runsDir: string, night: string): DigestRow[] {
       continue;
     }
     if (!isRun(value)) continue;
+    runs.push(value);
+    counts[value.status] += 1;
+  }
 
-    const run = value;
+  return { runs, counts };
+}
+
+export function readNight(runsDir: string, night: string): DigestRow[] {
+  const { runs } = readRuns(runsDir, night);
+  const rows = new Map<string, DigestRow>();
+
+  for (const run of runs) {
     const current = rows.get(run.job);
     if (current === undefined) {
       rows.set(run.job, {
@@ -64,4 +81,8 @@ export function readNight(runsDir: string, night: string): DigestRow[] {
   }
 
   return [...rows.values()];
+}
+
+export function readNightCounts(runsDir: string, night: string): DigestCounts {
+  return readRuns(runsDir, night).counts;
 }

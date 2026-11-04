@@ -36,7 +36,7 @@ describe('digest routes', () => {
     expect(html).toContain('—');
   });
 
-  it('returns sorted rows as JSON and returns 404 for missing nights', async () => {
+  it('returns sorted rows as JSON and ignores bad lines', async () => {
     const app = await appWithNight(
       '{"at":"2026-10-28T01:00:00+01:00","job":"z-job","status":"ok","owner":"z"}\n' +
       'not json\n' +
@@ -49,6 +49,10 @@ describe('digest routes', () => {
       expect.objectContaining({ job: 'a-job' }),
       expect.objectContaining({ job: 'z-job' }),
     ]);
+  });
+
+  it('returns 404 for a missing night', async () => {
+    const app = await appWithNight('');
     expect((await app.request('/digest/missing')).status).toBe(404);
     expect((await app.request('/api/digest/missing')).status).toBe(404);
   });
