@@ -77,3 +77,14 @@ page again with `LANE_MARKER` unset (the banner reads "no marker set") and uploa
 link. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link no longer shows the lane marker.
+
+## Issue list
+
+- [#1 Define the digest contract](https://github.com/beastieskate/s01e04-before-i-looked/issues/1)
+- [#2 Read and summarize a night run log](https://github.com/beastieskate/s01e04-before-i-looked/issues/2)
+- [#3 Render GET /digest/:night](https://github.com/beastieskate/s01e04-before-i-looked/issues/3)
+- [#4 Add GET /api/digest/:night](https://github.com/beastieskate/s01e04-before-i-looked/issues/4)
+- [#5 Link status-board nights to digests](https://github.com/beastieskate/s01e04-before-i-looked/issues/5)
+- [#6 Add digest route tests](https://github.com/beastieskate/s01e04-before-i-looked/issues/6)
+- [#7 Publish the marked HTML preview](https://github.com/beastieskate/s01e04-before-i-looked/issues/7)
+- [#8 Remove the marker and finish the plan](https://github.com/beastieskate/s01e04-before-i-looked/issues/8)
