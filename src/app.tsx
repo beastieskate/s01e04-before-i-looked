@@ -2,8 +2,19 @@ import { Hono } from 'hono';
 import { loadConfig, type RigConfig } from './config.js';
 import { lane } from './lane.js';
 import { readStatus } from './status.js';
+import { readNight } from './digest/reader.js';
+import type { DigestRow } from './digest/types.js';
+import { Digest } from './views/digest.js';
 import { Layout } from './views/layout.js';
 import { StatusBoard } from './views/status.js';
+
+function readDigestRows(runsDir: string, night: string): DigestRow[] | null {
+  try {
+    return readNight(runsDir, night).sort((left, right) => left.job.localeCompare(right.job));
+  } catch {
+    return null;
+  }
+}
 
 export function createApp(config: RigConfig = loadConfig()) {
   const app = new Hono();
@@ -17,6 +28,24 @@ export function createApp(config: RigConfig = loadConfig()) {
       </Layout>,
     ),
   );
+
+  app.get('/digest/:night', (c) => {
+    const night = c.req.param('night');
+    const rows = readDigestRows(config.runsDir, night);
+    if (rows === null) return c.notFound();
+
+    return c.html(
+      <Layout title={`digest · ${night}`} lane={lane()}>
+        <Digest night={night} rows={rows} />
+      </Layout>,
+    );
+  });
+
+  app.get('/api/digest/:night', (c) => {
+    const rows = readDigestRows(config.runsDir, c.req.param('night'));
+    if (rows === null) return c.notFound();
+    return c.json(rows);
+  });
 
   return app;
 }
